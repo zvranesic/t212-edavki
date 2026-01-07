@@ -1,75 +1,69 @@
-# 🚀 Trading 212 v eDavke (Doh-KDVP)
+# 🚀 Trading 212 ➡️ eDavke (Doh-KDVP)
 
-Ta skripta je namenjena vsem, ki uporabljate **Trading 212** in želite hitro ter varno pripraviti XML datoteko za prijavo davka na dobiček (**Doh-KDVP**) na portalu eDavki.
+Živijo! Če trguješ na Trading 212 in si kdaj poskusil ročno vnašati vse tiste nakupe in prodaje v eDavke, veš, da je to prava muka. Ta skripta je tukaj, da ti olajša življenje – prebere tvoje CSV izvoze in ti pripravi XML datoteko, ki jo samo uvoziš na portal, in stvar je rešena.
 
 ---
 
-## 🛠️ 1. Priprava (samo prvič)
+## 🛠️ 1. Kaj rabiš na začetku?
 
-1.  **Namesti Python:** Prenesi ga na [python.org](https://www.python.org/downloads/). 
-    *   **Zelo pomembno:** Ob začetku namestitve obvezno obkljukaj polje **"Add Python to PATH"**.
-2.  **Namesti Pandas:** To je knjižnica za obdelavo podatkov. Odpri *Ukazni poziv* (v Windowsih vpiši `cmd` v iskalnik ob gumbu Start) in vpiši:
+1.  **Inštaliraj Python:** Prenesi ga na [python.org](https://www.python.org/downloads/).
+    -   **Nujno:** Ko zaženeš inštalacijo, obvezno obkljukaj polje **"Add Python to PATH"**, sicer računalnik ne bo vedel, kaj bi rad od njega.
+2.  **Namesti knjižnice:** Odpri _Ukazni poziv_ (v iskanje napiši `cmd`) in skopiraj spodnji ukaz:
     ```bash
-    pip install pandas
+    pip install pandas requests
     ```
 
 ---
 
-## 📂 2. Tvoji podatki
+## 📂 2. Pripravi svoje podatke
 
-1.  **Izvozi iz Trading 212:** V mapo `input` skopiraj svoje CSV izvoze transakcij.
-    *   **💡 Nasvet:** Skopiraj **vse izvoze od samega začetka trgovanja**, ne le za zadnje leto. Skripta potrebuje celotno zgodovino, da pravilno izračuna nabavno vrednost (FIFO) in upošteva pretekle delitve delnic.
-2.  **Tečaji:** V mapi `rate` je že vključena datoteka s tečaji za preračun.
-
----
-
-## ⚙️ 3. Nastavitev leta in podatkov
-
-Z desnim klikom klikni na `main.py` -> **Odpri z (Open with)** -> **Beležnica (Notepad)**.
-Na vrhu datoteke pod razdelkom `# --- NASTAVITVE UPORABNIKA ---` spremeni:
-
-*   **`TAX_YEAR`**: Leto, za katero oddajaš (npr. `2025`).
-*   **Osebni podatki**: Davčno številko, ime in naslov lahko dopolniš tukaj. 
-    *   *Opomba: Tudi če pustiš privzeto, bodo eDavki ob uvozu sami prepoznali tvoj profil in posodobili podatke.*
-
-**Shrani datoteko (`Ctrl + S`)!**
+1.  Na Trading 212 izvozi svoje transakcije v **CSV** formatu.
+2.  Vse te datoteke preprosto vrzi v mapo `input`.
+    -   **💡 Nasvet:** Najbolje je, da skopiraš **vse izvoze od samega začetka**, ko si začel trgovati. Skripta namreč rabi celotno zgodovino, da pravilno poračuna nabavno ceno po metodi **FIFO** (najprej prodaj tisto, kar si najprej kupil).
 
 ---
 
-## ⚡ 4. Zagon (najhitrejši način)
+## ⚙️ 3. Tvoji podatki (`settings.py`)
 
-1.  Odpri mapo, kjer imaš datoteko `main.py`.
-2.  **Trik:** Zgoraj v naslovno vrstico okna (kjer piše pot do mape) klikni z miško, pobriši vse, vpiši **`powershell`** in pritisni **Enter**.
-3.  V črno okno, ki se odpre, vpiši spodnji ukaz in pritisni Enter:
+Odpri datoteko `settings.py` (z desnim klikom -> Odpri z Beležnico/Notepad) in uredi:
+
+-   `TAX_YEAR`: Vpiši leto, za katero oddajaš (npr. 2025).
+-   `TAX_NUMBER`, `NAME`, `ADDRESS`...: Vpiši svoje podatke, da bodo eDavki vedeli, čigava je napoved.
+-   `TAX_RATE`: To pustiš na 0.25 (25 %), razen če imaš kakšen poseben razlog za spremembo.
+
+---
+
+## ⚡ 4. Akcija!
+
+1.  Pojdi v mapo, kjer imaš skripto. Zgoraj v naslovno vrstico raziskovalca (tam, kjer piše pot do mape) napiši **`cmd`** in pritisni Enter.
+2.  V črno okno, ki se odpre, napiši:
     ```bash
     python main.py
     ```
-4.  Ko skripta zaključi, boš v mapi **`output`** našel pripravljeno XML datoteko.
+3.  **V tem oknu boš takoj videl:**
+    -   **Realni dobiček:** Koliko si dejansko zaslužil na borzi.
+    -   **FURS dobiček:** Tista številka, od katere se računa davek (že vštet 1 % stroškov).
+    -   **Stanje portfelja:** Pregled, kaj vse še držiš na računu.
+
+XML datoteka te bo čakala v mapi **`output`**. To datoteko nato preprosto uvoziš v eDavke pod obrazec Doh-KDVP.
 
 ---
 
-## 📝 5. Oddaja v eDavke
+## 💡 Zakaj bi sploh uporabljal to skripto?
 
-1.  Prijavi se v [eDavke](https://edavki.durs.si/) in odpri obrazec **Doh-KDVP** za ustrezno leto.
-2.  Klikni gumb **Uvoz** (zgoraj desno v meniju) in izberi XML datoteko iz mape `output`.
-3.  Klikni **Izračun**, preveri podatke in oddaj obrazec.
-
----
-
-## 💡 Zakaj uporabiti to skripto?
-
-*   **Visoka natančnost:** Uporablja uradne ECB tečaje in visoko število decimalk za minimalna odstopanja.
-*   **Stroga deduplikacija:** Če imaš več CSV datotek, ki se časovno prekrivajo, bo skripta samodejno odstranila vse podvojene vnose.
-*   **Stock Splits:** Vsebuje logiko za Nvidio in ostale večje splite, kar večina spletnih pretvornikov spregleda, kar povzroči napačen izračun davka.
+-   **Samodejni ECB tečaji:** Skripta sama pobere uradne tečaje z interneta na dan posla. Nič več ročnega preračunavanja iz dolarjev v evre.
+-   **FIFO metoda:** Vse se pravilno popari po vrstnem redu, kot zahteva zakon.
+-   **Manjši davek:** Program avtomatsko prišteje 1 % h kupni ceni in odšteje 1 % od prodajne, kar ti malo zniža davčno osnovo (priznani stroški).
+-   **Stock Splits:** Če si imel Nvidio ali podobne delnice, veš, da so bili spliti. Skripta to zrihta, da ne boš v minusu s količino.
 
 ---
 
 ### ☕ Podpora in donacije
 
-Če ti je programček prihranil čas in živce ter je bil izvoz pravilen, sem zelo vesel vsake donacije za kavo ali pivo! Gre za prostovoljni prispevek, ki mi pomaga vzdrževati skripto.
+Če ti je skripta prihranila čas in denar, bom vesel donacije za kavo ali pivo!
 
 👉 **[Doniraj preko PayPal](https://www.paypal.com/donate/?hosted_button_id=X35CTXP8REUVQ)**
 
 ---
 
-**Opozorilo:** Skripta je pripomoček in ne nadomešča uradnih nasvetov. Pred oddajo na portal eDavki obvezno preglejte izračune. Avtor ne prevzema odgovornosti za morebitne napake v davčni napovedi.
+**Pazi:** Program je informativni pripomoček. Preden oddaš na eDavke, vseeno malo preveri številke, če se ti zdi vse smiselno. Za svojo davčno napoved odgovarjaš sam.
