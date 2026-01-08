@@ -67,3 +67,8 @@ XML datoteka te bo čakala v mapi **`output`**. To datoteko nato preprosto uvozi
 ---
 
 **Pazi:** Program je informativni pripomoček. Preden oddaš na eDavke, vseeno malo preveri številke, če se ti zdi vse smiselno. Za svojo davčno napoved odgovarjaš sam.
+
+---
+
+### 🤝 Zasluge / Attribution
+Ta projekt je bil povzet in izboljšan na podlagi odprtokodne rešitve: [Neophytez/t212-edavki](https://github.com/Neophytez/t212-edavki). Hvala originalnemu avtorju za postavljene temelje!
