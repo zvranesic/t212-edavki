@@ -6,11 +6,13 @@ import zipfile
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
 from collections import deque
-import ctypes
+import sys
 
-# Omogoči barve v Windows terminalu
-kernel32 = ctypes.windll.kernel32
-kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
+if sys.platform.startswith("win"):
+    import ctypes
+    # Omogoči barve v Windows terminalu
+    kernel32 = ctypes.windll.kernel32
+    kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 # Uvoz nastavitev
 try:
