@@ -44,8 +44,22 @@ Odpri datoteko `settings.py` (z desnim klikom -> Odpri z Beležnico/Notepad) in 
     -   **Realni dobiček:** Koliko si dejansko zaslužil na borzi.
     -   **FURS dobiček:** Tista številka, od katere se računa davek (že vštet 1 % stroškov).
     -   **Stanje portfelja:** Pregled, kaj vse še držiš na računu.
+    -   **Dividende:** Če si prejel dividende, boš videl tudi njihov pregled.
 
-XML datoteka te bo čakala v mapi **`output`**. To datoteko nato preprosto uvoziš v eDavke pod obrazec Doh-KDVP.
+Program bo ustvaril XML datoteke v mapi **`output`**:
+-   **Doh_KDVP_[leto].xml** - za kapitalske dobičke (obrazec Doh-KDVP)
+-   **Doh_Div_[leto].xml** - za dividende (obrazec Doh-Div), če si jih prejel
+
+Te datoteke nato preprosto uvoziš v eDavke pod ustrezne obrazce.
+
+### Opomba o dveh ločenih obrazcih
+
+Program ustvari **dve ločeni XML datoteki**, ker slovenski davčni sistem zahteva ločeno poročanje:
+
+-   **Doh-KDVP** (kapitalski dobički): Za prodaje delnic. Davek 25% na dobiček.
+-   **Doh-Div** (dividende): Za prejete dividende. Davek 27.5% na bruto dividendo, minus tuja odmera davka.
+
+Oba obrazca moraš oddati ločeno v eDavke portal. Program ti ju avtomatsko pripravi, če imaš ustrezne transakcije v CSV izvozni datoteki iz Trading 212.
 
 ---
 

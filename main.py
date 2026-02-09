@@ -350,4 +350,18 @@ def create_edavki_xml():
 
 
 if __name__ == "__main__":
+    # Fetch ECB rates once for both reports
+    rates_df = fetch_ecb_rates()
+    if rates_df is None:
+        print("Napaka: Ni mogoče prenesti tečajev!")
+        exit(1)
+    
+    # Generate capital gains report (Doh-KDVP)
     create_edavki_xml()
+    
+    # Generate dividend report (Doh-Div)
+    try:
+        from dividends import create_dividend_xml
+        create_dividend_xml(rates_df)
+    except ImportError:
+        pass  # dividends.py not available
