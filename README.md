@@ -1,6 +1,6 @@
-# 🚀 Trading 212 ➡️ eDavke (Doh-KDVP)
+# 🚀 Trading 212 & Trade Republic ➡️ eDavke (Doh-KDVP)
 
-Živijo! Če trguješ na Trading 212 in si kdaj poskusil ročno vnašati vse tiste nakupe in prodaje v eDavke, veš, da je to prava muka. Ta skripta je tukaj, da ti olajša življenje – prebere tvoje CSV izvoze in ti pripravi XML datoteko, ki jo samo uvoziš na portal, in stvar je rešena.
+Živijo! Če trguješ na Trading 212 ali Trade Republic in si kdaj poskusil ročno vnašati vse tiste nakupe in prodaje v eDavke, veš, da je to prava muka. Ta skripta je tukaj, da ti olajša življenje – prebere tvoje CSV/PDF izvoze in ti pripravi XML datoteko, ki jo samo uvoziš na portal, in stvar je rešena.
 
 ---
 
@@ -10,16 +10,23 @@
     -   **Nujno:** Ko zaženeš inštalacijo, obvezno obkljukaj polje **"Add Python to PATH"**, sicer računalnik ne bo vedel, kaj bi rad od njega.
 2.  **Namesti knjižnice:** Odpri _Ukazni poziv_ (v iskanje napiši `cmd`) in skopiraj spodnji ukaz:
     ```bash
-    pip install pandas requests
+    pip install pandas requests pypdf
     ```
 
 ---
 
 ## 📂 2. Pripravi svoje podatke
 
+### Trading 212
 1.  Na Trading 212 izvozi svoje transakcije v **CSV** formatu.
 2.  Vse te datoteke preprosto vrzi v mapo `input`.
-    -   **💡 Nasvet:** Najbolje je, da skopiraš **vse izvoze od samega začetka**, ko si začel trgovati. Skripta namreč rabi celotno zgodovino, da pravilno poračuna nabavno ceno po metodi **FIFO** (najprej prodaj tisto, kar si najprej kupil).
+
+### Trade Republic
+1.  V Trade Republic aplikaciji prenesi **Account Statement** (PDF format).
+2.  PDF datoteko preimenuj, da vsebuje "traderepublic" v imenu (npr. `traderepublic_statement.pdf`).
+3.  Vrzi jo v mapo `input`.
+
+**💡 Nasvet:** Najbolje je, da skopiraš **vse izvoze od samega začetka**, ko si začel trgovati. Skripta namreč rabi celotno zgodovino, da pravilno poračuna nabavno ceno po metodi **FIFO** (najprej prodaj tisto, kar si najprej kupil). Program avtomatsko združi podatke iz obeh platform.
 
 ---
 

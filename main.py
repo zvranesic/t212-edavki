@@ -46,23 +46,50 @@ def format_high_precision(val):
     return f"{float(val):.8f}".rstrip('0').rstrip('.')
 
 
-def create_edavki_xml():
+def create_edavki_xml(rates_df=None):
     if not os.path.exists(settings.OUTPUT_FOLDER):
         os.makedirs(settings.OUTPUT_FOLDER)
 
-    rates_df = fetch_ecb_rates()
     if rates_df is None:
-        return
+        rates_df = fetch_ecb_rates()
+        if rates_df is None:
+            return
 
+    # Read Trading 212 CSV files
     csv_files = [f for f in os.listdir(
         settings.INPUT_FOLDER) if f.endswith('.csv')]
-    if not csv_files:
+    
+    # Read Trade Republic PDF files
+    pdf_files = [f for f in os.listdir(
+        settings.INPUT_FOLDER) if f.endswith('.pdf') and 'traderepublic' in f.lower()]
+    
+    if not csv_files and not pdf_files:
         print("Napaka: Ni datotek v mapi /input!")
         return
 
     all_dfs = []
+    
+    # Process Trading 212 CSVs
     for file in csv_files:
         all_dfs.append(pd.read_csv(os.path.join(settings.INPUT_FOLDER, file)))
+    
+    # Process Trade Republic PDFs
+    if pdf_files:
+        try:
+            from traderepublic import parse_traderepublic_pdf
+            for file in pdf_files:
+                pdf_path = os.path.join(settings.INPUT_FOLDER, file)
+                print(f"Parsing Trade Republic PDF: {file}")
+                tr_df = parse_traderepublic_pdf(pdf_path)
+                if not tr_df.empty:
+                    all_dfs.append(tr_df)
+                    print(f"  ✅ Added {len(tr_df)} transactions from {file}")
+        except ImportError:
+            print("⚠️  Trade Republic parser not available (traderepublic.py missing)")
+
+    if not all_dfs:
+        print("Napaka: Ni transakcij!")
+        return
 
     df = pd.concat(all_dfs, ignore_index=True)
     df['Time'] = pd.to_datetime(df['Time']).dt.floor('s')
@@ -357,7 +384,7 @@ if __name__ == "__main__":
         exit(1)
     
     # Generate capital gains report (Doh-KDVP)
-    create_edavki_xml()
+    create_edavki_xml(rates_df)
     
     # Generate dividend report (Doh-Div)
     try:
