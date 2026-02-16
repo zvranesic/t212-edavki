@@ -263,18 +263,20 @@ def create_edavki_xml():
         # Pametna simulacija za XML (FIFO)
         temp_inv = deque()
         xml_rows = []
+        emitted_buys = set()
         group = df_trades[df_trades['ISIN'] == isin].copy()
 
         for _, row in group.iterrows():
             q = float(row['No. of shares'])
             buy = "buy" in row['Action'].lower()
             if buy:
-                temp_inv.append(
-                    {'qty': q, 'price': row['Price_EUR'], 'time': row['Time'], 'year': row['Year_val']})
+                entry = {'qty': q, 'price': row['Price_EUR'], 'time': row['Time'], 'year': row['Year_val']}
+                temp_inv.append(entry)
                 # Če je nakup v tekočem letu, gre direktno v XML
                 if row['Year_val'] == settings.TAX_YEAR:
                     xml_rows.append(
                         {'type': 'B', 'date': row['Time'], 'qty': q, 'price': row['Price_EUR']})
+                    emitted_buys.add(id(entry))
             else:
                 t_qty = q
                 while t_qty > 0 and temp_inv:
@@ -283,9 +285,10 @@ def create_edavki_xml():
 
                     # Če je star nakup prodan v tekočem letu, ga moramo vključiti v XML
                     if o_buy['year'] < settings.TAX_YEAR and row['Year_val'] == settings.TAX_YEAR:
-                        if not any(x['type'] == 'B' and x['date'] == o_buy['time'] for x in xml_rows):
+                        if id(o_buy) not in emitted_buys:
                             xml_rows.append(
                                 {'type': 'B', 'date': o_buy['time'], 'qty': o_buy['qty'], 'price': o_buy['price']})
+                            emitted_buys.add(id(o_buy))
 
                     o_buy['qty'] -= take
                     t_qty -= take
