@@ -1,3 +1,14 @@
+input/*
+!input/.gitkeep
+
+output/*
+!output/.gitkeep
+
+rate/*
+!rate/.gitkeep
+
+settings.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

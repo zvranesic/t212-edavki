@@ -9,8 +9,11 @@ from collections import deque
 import ctypes
 
 # Omogoči barve v Windows terminalu
-kernel32 = ctypes.windll.kernel32
-kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
+if os.name == "nt":
+    kernel32 = ctypes.windll.kernel32
+    kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
+
+TIME_COLUMN='Time (UTC)'
 
 # Uvoz nastavitev
 try:
@@ -63,23 +66,30 @@ def create_edavki_xml():
         all_dfs.append(pd.read_csv(os.path.join(settings.INPUT_FOLDER, file)))
 
     df = pd.concat(all_dfs, ignore_index=True)
-    df['Time'] = pd.to_datetime(df['Time']).dt.floor('s')
+    df[TIME_COLUMN] = (
+        pd.to_datetime(df[TIME_COLUMN], utc=True)
+        .dt.floor('s')
+    )
     df = df.drop_duplicates(
-        subset=['Time', 'Action', 'ISIN', 'No. of shares', 'Price / share'])
-    df = df.sort_values('Time')
+        subset=[TIME_COLUMN, 'Action', 'ISIN', 'No. of shares', 'Price / share'])
+    df = df.sort_values(TIME_COLUMN)
 
     df_trades = df[df['Action'].str.contains(
         'buy|sell', case=False, na=False)].copy()
 
     for isin, split_date, ratio in settings.STOCK_SPLITS:
-        split_dt = pd.to_datetime(split_date)
-        mask = (df_trades['ISIN'] == isin) & (df_trades['Time'] < split_dt)
+        split_dt = pd.to_datetime(split_date, utc=True)
+        mask = (df_trades['ISIN'] == isin) & (df_trades[TIME_COLUMN] < split_dt)
         df_trades.loc[mask, 'No. of shares'] = df_trades.loc[mask,
                                                              'No. of shares'] * ratio
         df_trades.loc[mask, 'Price / share'] = df_trades.loc[mask,
                                                              'Price / share'] / ratio
 
-    df_trades['Date_only'] = df_trades['Time'].dt.normalize()
+    df_trades['Date_only'] = (
+        df_trades[TIME_COLUMN]
+        .dt.normalize()
+        .dt.tz_localize(None)
+    )
     df_trades = pd.merge_asof(
         df_trades, rates_df, left_on='Date_only', right_on='Date', direction='backward')
 
@@ -97,7 +107,7 @@ def create_edavki_xml():
         return val
 
     df_trades['Price_EUR'] = df_trades.apply(to_eur, axis=1)
-    df_trades['Year_val'] = df_trades['Time'].dt.year
+    df_trades['Year_val'] = df_trades[TIME_COLUMN].dt.year
 
     # --- FIFO LOGIKA ---
     inventory = {}
@@ -270,11 +280,11 @@ def create_edavki_xml():
             buy = "buy" in row['Action'].lower()
             if buy:
                 temp_inv.append(
-                    {'qty': q, 'price': row['Price_EUR'], 'time': row['Time'], 'year': row['Year_val']})
+                    {'qty': q, 'price': row['Price_EUR'], 'time': row[TIME_COLUMN], 'year': row['Year_val']})
                 # Če je nakup v tekočem letu, gre direktno v XML
                 if row['Year_val'] == settings.TAX_YEAR:
                     xml_rows.append(
-                        {'type': 'B', 'date': row['Time'], 'qty': q, 'price': row['Price_EUR']})
+                        {'type': 'B', 'date': row[TIME_COLUMN], 'qty': q, 'price': row['Price_EUR']})
             else:
                 t_qty = q
                 while t_qty > 0 and temp_inv:
@@ -295,7 +305,7 @@ def create_edavki_xml():
                 # Prodaja v tekočem letu gre vedno v XML
                 if row['Year_val'] == settings.TAX_YEAR:
                     xml_rows.append(
-                        {'type': 'S', 'date': row['Time'], 'qty': q, 'price': row['Price_EUR']})
+                        {'type': 'S', 'date': row[TIME_COLUMN], 'qty': q, 'price': row['Price_EUR']})
 
         # Zapis vrstic v XML (urejeno po datumu)
         xml_rows.sort(key=lambda x: x['date'])

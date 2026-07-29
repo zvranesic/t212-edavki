@@ -10,7 +10,7 @@
     -   **Nujno:** Ko zaženeš inštalacijo, obvezno obkljukaj polje **"Add Python to PATH"**, sicer računalnik ne bo vedel, kaj bi rad od njega.
 2.  **Namesti knjižnice:** Odpri _Ukazni poziv_ (v iskanje napiši `cmd`) in skopiraj spodnji ukaz:
     ```bash
-    pip install pandas requests
+    pip install -r requirements.txt
     ```
 
 ---
@@ -25,7 +25,7 @@
 
 ## ⚙️ 3. Tvoji podatki (`settings.py`)
 
-Odpri datoteko `settings.py` (z desnim klikom -> Odpri z Beležnico/Notepad) in uredi:
+Preimenuj datoteko `settings.py.template` v `settings.py` (z desnim klikom -> Odpri z Beležnico/Notepad) in uredi:
 
 -   `TAX_YEAR`: Vpiši leto, za katero oddajaš (npr. 2025).
 -   `TAX_NUMBER`, `NAME`, `ADDRESS`...: Vpiši svoje podatke, da bodo eDavki vedeli, čigava je napoved.
